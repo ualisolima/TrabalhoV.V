@@ -24,6 +24,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.br.ufc.vev.Repository.SessaoRepository;
 import com.br.ufc.vev.exceptions.FilmeNotFoundException;
 import com.br.ufc.vev.exceptions.SalaNotFoundException;
+import com.br.ufc.vev.exceptions.SessaoJaExisteException;
+import com.br.ufc.vev.exceptions.ValoresNulosException;
 import com.br.ufc.vev.model.Filme;
 import com.br.ufc.vev.model.Sala;
 import com.br.ufc.vev.model.Sessao;
@@ -90,7 +92,7 @@ public class ApplicationTests {
 	}
 	
 	@Test
-	public void addSessaoComSucesso() throws FilmeNotFoundException, SalaNotFoundException {
+	public void addSessaoComSucesso() throws FilmeNotFoundException, SalaNotFoundException, SessaoJaExisteException, ValoresNulosException {
 		Sessao s = new Sessao();
 		Calendar c = Calendar.getInstance();
 		s.setDataInicio(new Date( c.getTimeInMillis() ) );
@@ -104,8 +106,41 @@ public class ApplicationTests {
 		assertEquals(s, other);
 	}
 	
+	@Test(expected = ValoresNulosException.class)
+	public void addSessaoDataInicioNulo() throws FilmeNotFoundException, SalaNotFoundException, SessaoJaExisteException, ValoresNulosException {
+		Sessao s = new Sessao();
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.DATE, 7);
+		s.setDataFim( new Date( c.getTimeInMillis() ));
+		s.setHorario(new Time(c.getTimeInMillis()));
+		s.setFilmeId(1L);
+		s.setSalaId(1L);
+		sessaoService.save(s);
+	}
+	
+	@Test(expected = SessaoJaExisteException.class)
+	public void addSessaoQueJaExiste() throws FilmeNotFoundException, SalaNotFoundException, SessaoJaExisteException, ValoresNulosException {
+		Sessao s = new Sessao();
+		Calendar c = Calendar.getInstance();
+		s.setDataInicio(new Date( c.getTimeInMillis() ) );
+		c.add(Calendar.DATE, 7);
+		s.setDataFim( new Date( c.getTimeInMillis() ));
+		s.setHorario(new Time(c.getTimeInMillis()));
+		s.setFilmeId(1L);
+		s.setSalaId(1L);
+		sessaoService.save(s);
+		Sessao s2 = new Sessao();
+		s2.setDataInicio( s.getDataInicio() );
+		s2.setDataFim( s.getDataFim());
+		s2.setHorario( s.getHorario() );
+		s2.setFilmeId(1L);
+		s2.setSalaId(1L);
+		sessaoService.save(s2);
+	}
+	
+	
 	@Test(expected=FilmeNotFoundException.class)
-	public void addSessaoComFilmeInexistente() throws FilmeNotFoundException, SalaNotFoundException {
+	public void addSessaoComFilmeInexistente() throws FilmeNotFoundException, SalaNotFoundException, SessaoJaExisteException, ValoresNulosException {
 		Sessao s = new Sessao();
 		Calendar c = Calendar.getInstance();
 		s.setDataInicio(new Date( c.getTimeInMillis() ) );
@@ -114,6 +149,19 @@ public class ApplicationTests {
 		s.setHorario(new Time(c.getTimeInMillis()));
 		s.setFilmeId(4L);
 		s.setSalaId(1L);
+		s = sessaoService.save(s);
+	}
+	
+	@Test(expected=SalaNotFoundException.class)
+	public void addSessaoComSalaInexistente() throws FilmeNotFoundException, SalaNotFoundException, SessaoJaExisteException, ValoresNulosException {
+		Sessao s = new Sessao();
+		Calendar c = Calendar.getInstance();
+		s.setDataInicio(new Date( c.getTimeInMillis() ) );
+		c.add(Calendar.DATE, 7);
+		s.setDataFim( new Date( c.getTimeInMillis() ));
+		s.setHorario(new Time(c.getTimeInMillis()));
+		s.setFilmeId(1L);
+		s.setSalaId(4L);
 		s = sessaoService.save(s);
 	}
 

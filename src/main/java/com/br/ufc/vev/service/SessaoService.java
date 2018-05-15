@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.br.ufc.vev.Repository.SessaoRepository;
 import com.br.ufc.vev.exceptions.FilmeNotFoundException;
 import com.br.ufc.vev.exceptions.SalaNotFoundException;
+import com.br.ufc.vev.exceptions.SessaoJaExisteException;
+import com.br.ufc.vev.exceptions.ValoresNulosException;
 import com.br.ufc.vev.model.Filme;
 import com.br.ufc.vev.model.Sessao;
 
@@ -36,25 +38,26 @@ public class SessaoService {
     }
 	
     public Sessao findOne(Long id) {
-    	System.out.println("TESTE ____ AQUI ____ 2");
     	Optional<Sessao> optional =  repository.findById(id);
     	if (optional.isPresent()) {
-    		System.out.println("TESTE ____ AQUI ____ 3");
     		return optional.get();
     	}
     	else {
-    		System.out.println("TESTE ____ AQUI ____ NULL");
     		return null;
     	}
     }
      
-    public Sessao save(Sessao sessao) throws FilmeNotFoundException, SalaNotFoundException{
+    public Sessao save(Sessao sessao) throws FilmeNotFoundException, SalaNotFoundException, SessaoJaExisteException, ValoresNulosException{
     	if (filmeService.findOne(sessao.getFilmeId()) == null) {
     		throw new FilmeNotFoundException();
     	}
     	if (salaService.findOne(sessao.getSalaId()) == null) {
     		throw new SalaNotFoundException();
     	}
+    	if ( sessao.getSessaoId() == null && !repository.findBySalaIdAndDataInicioAndHorario(sessao.getSalaId(), sessao.getDataInicio(), sessao.getHorario()).isEmpty())
+    		throw new SessaoJaExisteException();
+    	if ( sessao.getDataInicio() == null )
+    		throw new ValoresNulosException("Data início");
     	return repository.saveAndFlush(sessao);
     }
      
