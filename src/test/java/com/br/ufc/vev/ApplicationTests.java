@@ -13,8 +13,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Spy;
+//import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import com.br.ufc.vev.Repository.SessaoRepository;
 import com.br.ufc.vev.exceptions.FilmeNotFoundException;
 import com.br.ufc.vev.exceptions.SalaNotFoundException;
 import com.br.ufc.vev.model.Filme;
@@ -27,23 +34,28 @@ import com.br.ufc.vev.service.SessaoService;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 
-@RunWith(MockitoJUnitRunner.Silent.class)
-//@SpringBootTest
+@RunWith(SpringRunner.class)
+@DataJpaTest
+@AutoConfigureTestDatabase(replace=Replace.NONE)
 public class ApplicationTests {
 	
 	@Mock
 	FilmeService filmeServicemMock;
 	
-	@Mock
-	Filme filme1, filme2, filme3;
+	@Spy
+	Filme filme1 = new Filme(), filme2 = new Filme(), filme3 = new Filme();
 	
 	private List<Filme> filmes = new ArrayList<Filme>();
 	
 	@Mock
 	SalaService salaServicemMock;
 	
-	@Mock
-	Sala sala1, sala2, sala3;
+	@Spy
+	Sala sala1 = new Sala(), sala2 = new Sala(), sala3 = new Sala();
+	
+	@Spy
+	@Autowired
+	SessaoRepository sessaoRepository;
 	
 	@InjectMocks
 	SessaoService sessaoService;
@@ -52,6 +64,7 @@ public class ApplicationTests {
 
 	@Before
 	public void setUp() {
+		sessaoService.setRepository(sessaoRepository);
 		when(filme1.getFilmeId()).thenReturn(1L);
 		when(filme2.getFilmeId()).thenReturn(2L);
 		when(filme3.getFilmeId()).thenReturn(1L);
@@ -63,7 +76,6 @@ public class ApplicationTests {
 		when(filmeServicemMock.findOne(2L) ).thenReturn(filme2);
 		when(filmeServicemMock.findOne(3L) ).thenReturn(filme3);
 		when(filmeServicemMock.findByGenero(anyString())).thenReturn(filmes);
-		
 		when(sala1.getSalaId()).thenReturn(1L);
 		when(sala2.getSalaId()).thenReturn(2L);
 		when(sala3.getSalaId()).thenReturn(3L);
@@ -74,6 +86,7 @@ public class ApplicationTests {
 		when(salaServicemMock.findOne(1L) ).thenReturn(sala1);
 		when(salaServicemMock.findOne(2L) ).thenReturn(sala2);
 		when(salaServicemMock.findOne(3L) ).thenReturn(sala3);
+		
 	}
 	
 	@Test
@@ -86,9 +99,22 @@ public class ApplicationTests {
 		s.setHorario(new Time(c.getTimeInMillis()));
 		s.setFilmeId(1L);
 		s.setSalaId(1L);
-		sessaoService.save(s);
-		Sessao other = sessaoService.findOne(1L);
-		assertEquals(1L, other.getSessaoId());
+		s = sessaoService.save(s);
+		Sessao other = sessaoService.findOne(s.getSessaoId());
+		assertEquals(s, other);
+	}
+	
+	@Test(expected=FilmeNotFoundException.class)
+	public void addSessaoComFilmeInexistente() throws FilmeNotFoundException, SalaNotFoundException {
+		Sessao s = new Sessao();
+		Calendar c = Calendar.getInstance();
+		s.setDataInicio(new Date( c.getTimeInMillis() ) );
+		c.add(Calendar.DATE, 7);
+		s.setDataFim( new Date( c.getTimeInMillis() ));
+		s.setHorario(new Time(c.getTimeInMillis()));
+		s.setFilmeId(4L);
+		s.setSalaId(1L);
+		s = sessaoService.save(s);
 	}
 
 }

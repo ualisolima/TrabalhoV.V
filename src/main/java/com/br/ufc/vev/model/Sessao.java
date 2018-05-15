@@ -8,7 +8,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.validation.constraints.NotBlank;
 
 @Entity
 public class Sessao {
@@ -18,21 +17,18 @@ public class Sessao {
 	private Long sessaoId;
 	
 	@Column
-	private long filmeId;
+	private Long filmeId;
 	
 	@Column
-	private long salaId;
+	private Long salaId;
 	
-	@Column(nullable = false)
-	@NotBlank(message = "Horario da sessão é uma informação obrigatória")
+	@Column
 	private Time horario;
 	
-	@Column(nullable = false)
-	@NotBlank(message = "Início da sessão é uma informação obrigatória")
+	@Column
 	private Date dataInicio;
 	
-	@Column(nullable = false)
-	@NotBlank(message = "Fim da sessão é uma informação obrigatória")
+	@Column
 	private Date dataFim;
 
 	public Long getSessaoId() {
@@ -43,19 +39,19 @@ public class Sessao {
 		this.sessaoId = sessaoId;
 	}
 
-	public long getFilmeId() {
+	public Long getFilmeId() {
 		return filmeId;
 	}
 
-	public void setFilmeId(long filmeId) {
+	public void setFilmeId(Long filmeId) {
 		this.filmeId = filmeId;
 	}
 
-	public long getSalaId() {
+	public Long getSalaId() {
 		return salaId;
 	}
 
-	public void setSalaId(long salaId) {
+	public void setSalaId(Long salaId) {
 		this.salaId = salaId;
 	}
 
@@ -81,6 +77,18 @@ public class Sessao {
 
 	public void setDataFim(Date dataFim) {
 		this.dataFim = dataFim;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		Sessao other = (Sessao) obj;
+		return this.getSessaoId().equals(other.getSessaoId()) 
+				&& this.getSalaId().equals(other.getSalaId()) 
+				&& this.getFilmeId().equals(other.getFilmeId())
+				&& this.getDataInicio().getTime() == other.getDataInicio().getTime()
+				&& this.getDataInicio().getTime() == other.getDataInicio().getTime()
+				&& this.getDataFim().getTime() == other.getDataFim().getTime()
+				&& this.getHorario().getTime() == other.getHorario().getTime();
 	}
 	
 	

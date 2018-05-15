@@ -20,33 +20,42 @@ public class SessaoService {
 	@Autowired
 	private SessaoRepository repository;
 	
+	@Autowired
 	private FilmeService filmeService;
 	
+	@Autowired
 	private SalaService salaService;
 	
-	public SessaoService(FilmeService filmeService, SalaService salaService) {
-		this.filmeService = filmeService;
-		this.salaService = salaService;
+	public void setRepository(SessaoRepository repository) {
+		this.repository = repository;
 	}
 	
 	public List<Sessao> findAll() {
+		//System.out.println("teste");
         return repository.findAll();
     }
 	
     public Sessao findOne(Long id) {
+    	System.out.println("TESTE ____ AQUI ____ 2");
     	Optional<Sessao> optional =  repository.findById(id);
-    	if (optional.isPresent())
+    	if (optional.isPresent()) {
+    		System.out.println("TESTE ____ AQUI ____ 3");
     		return optional.get();
-    	else
+    	}
+    	else {
+    		System.out.println("TESTE ____ AQUI ____ NULL");
     		return null;
+    	}
     }
      
     public Sessao save(Sessao sessao) throws FilmeNotFoundException, SalaNotFoundException{
-    	if (filmeService.findOne(sessao.getFilmeId()) == null)
+    	if (filmeService.findOne(sessao.getFilmeId()) == null) {
     		throw new FilmeNotFoundException();
-    	if (salaService.findOne(sessao.getSalaId()) == null)
+    	}
+    	if (salaService.findOne(sessao.getSalaId()) == null) {
     		throw new SalaNotFoundException();
-        return repository.saveAndFlush(sessao);
+    	}
+    	return repository.saveAndFlush(sessao);
     }
      
     public void delete(Long id) {
