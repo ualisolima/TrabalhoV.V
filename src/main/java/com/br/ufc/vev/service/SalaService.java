@@ -9,9 +9,5 @@ public interface SalaService {
 	public List<Sala> findAll();
 	
     public Sala findOne(Long id);
-     
-    public Sala save(Sala sala);
-     
-    public void delete(Long id);
 
 }

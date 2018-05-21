@@ -15,6 +15,12 @@ public interface SessaoRepository extends JpaRepository<Sessao, Long>{
 	
 	Set<Sessao> findByFilmeId(Long filmeId);
 	
+	List<Sessao> findBySalaId(Long salaId);
+	
 	List<Sessao> findBySalaIdAndDataInicioAndHorario(Long sala_id, Date dataInicio, Time horario);
+	
+	List<Sessao> findByDataInicioGreaterThanEqualAndDataFimLessThanEqualOrderByDataInicio(Date dataInicio, Date dataFim);
+	
+	List<Sessao> findByDataInicioGreaterThanEqualOrderByDataInicio(Date dataInicio);
 
 }

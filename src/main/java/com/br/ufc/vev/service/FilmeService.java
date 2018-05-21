@@ -10,10 +10,8 @@ public interface FilmeService {
 	
     public Filme findOne(Long id);
      
-    public Filme save(Filme filme);
-    
-    public void delete(Long id);
-    
     public List<Filme> findByGenero(String genero);
+    
+    public List<Filme> findByNome(String nome);
 
 }
